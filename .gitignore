@@ -1,0 +1,7 @@
+.venv/*
+.venv/
+data/*
+Data/*
+__pychache__/
+*.__pychache__.ipynb checkpoints
+.vscode/

@@ -1,0 +1,1 @@
+data = pd.read_csv('/content/part-00000-tid-1906863738748800288-d6dbb10a-e27c-4b5d-9261-27f7bab43a35-366386-1-c000.csv')
