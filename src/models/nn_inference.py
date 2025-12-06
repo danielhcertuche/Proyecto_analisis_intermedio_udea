@@ -3,18 +3,24 @@ from __future__ import annotations
 
 from typing import Dict, Any, Tuple
 
+import os
+import pathlib
+
 import numpy as np
 import joblib
 import tensorflow as tf
 
 from src.config.settings import MODELS_DIR
-from src.config.nn_config import NN_MODEL_SUBDIR, NN_PIPELINE_PKL
-import os
-import pathlib
+from src.config.nn_config import (
+    NN_MODEL_SUBDIR,
+    NN_PIPELINE_PKL,
+    NN_KERAS_NAME,
+)
 
 # 🔧 Parche cross-platform: permitir cargar objetos WindowsPath en Linux
 if os.name != "nt" and hasattr(pathlib, "WindowsPath"):
     pathlib.WindowsPath = pathlib.PosixPath
+
 
 def load_nn_zero_inflated_bundle() -> Tuple[tf.keras.Model, Dict[str, Any]]:
     """
@@ -30,10 +36,18 @@ def load_nn_zero_inflated_bundle() -> Tuple[tf.keras.Model, Dict[str, Any]]:
             - "embed_cols"
             - "num_cols"
     """
+    # pkl guardado en el repo
     pipe_path = MODELS_DIR / NN_MODEL_SUBDIR / NN_PIPELINE_PKL
     artefacts: Dict[str, Any] = joblib.load(pipe_path)
 
-    keras_path = artefacts["keras_model_path"]
+    # ⚠ Ignoramos la ruta absoluta de Windows que viene en el pickle
+    # y construimos la ruta al modelo Keras a partir de la estructura del proyecto
+    keras_path = MODELS_DIR / NN_MODEL_SUBDIR / NN_KERAS_NAME
+
+    # Actualizamos el artefacto para que el resto del código vea la ruta correcta
+    artefacts["keras_model_path"] = keras_path
+
+    # Cargamos el modelo desde el archivo dentro del repo
     model = tf.keras.models.load_model(keras_path)
 
     return model, artefacts
