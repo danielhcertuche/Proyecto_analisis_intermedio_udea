@@ -7,6 +7,8 @@ ML Training Report Dashboard (Streamlit)
 - Usa un header tipo web app y un tema oscuro/claro inyectado vía CSS.
 - Incluye una sección de predicción rápida (what-if) usando el modelo entrenado.
 """
+import sys
+from pathlib import Path
 
 import json
 from datetime import datetime
@@ -14,6 +16,31 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+
+
+
+# === AÑADE ESTO ANTES DE "from src.config.settings ..." ===
+# Buscar la raíz del proyecto (la carpeta que contiene "src")
+cwd = Path(__file__).resolve()
+PROJECT_ROOT = None
+
+for parent in [cwd, *cwd.parents]:
+    if (parent / "src").is_dir():
+        PROJECT_ROOT = parent
+        break
+
+if PROJECT_ROOT is None:
+    raise RuntimeError("No se encontró carpeta 'src' en los padres.")
+
+# Añadir la raíz del proyecto al PYTHONPATH
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Ahora sí, los imports de tu proyecto
+from src.config.settings import REPORTS_DIR, TARGET_COL
+from src.config.nn_config import NN_MODEL_SUBDIR, NN_KERAS_NAME, NN_PIPELINE_PKL
+
 
 from src.config.settings import REPORTS_DIR, TARGET_COL
 from src.app.theme import inject_theme
