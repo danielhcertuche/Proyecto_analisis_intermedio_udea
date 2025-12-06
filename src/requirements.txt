@@ -7,3 +7,5 @@ tensorflow
 matplotlib
 seaborn
 joblib
+altair
+
