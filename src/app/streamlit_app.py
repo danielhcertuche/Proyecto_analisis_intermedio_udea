@@ -5,6 +5,7 @@ ML Training Report Dashboard (Streamlit)
 - Carga artefactos de entrenamiento (historia, métricas, hiperparámetros).
 - Muestra KPIs principales, curvas de entrenamiento y comparación de modelos.
 - Usa un header tipo web app y un tema oscuro/claro inyectado vía CSS.
+- Incluye una sección de predicción rápida (what-if) usando el modelo entrenado.
 """
 
 import json
@@ -14,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from src.config.settings import REPORTS_DIR
+from src.config.settings import REPORTS_DIR, TARGET_COL
 from src.app.theme import inject_theme
 from src.app.components.metric_card import metric_card
 from src.app.components.training_charts import (
@@ -22,6 +23,21 @@ from src.app.components.training_charts import (
     training_metric_chart,
 )
 from src.app.components.header import app_header
+from src.app.components.quick_predict import quick_prediction_card
+
+import logging
+
+logging.getLogger("tornado.application").setLevel(logging.ERROR)
+logging.getLogger("tornado.general").setLevel(logging.ERROR)
+
+
+# --- NUEVO: imports para inferencia ---
+from src.models.nn_inference import (
+    load_nn_zero_inflated_bundle,
+    predict_und_2a_from_raw,
+)
+from src.data.load_data import load_clean_dataset
+from src.features.nn_features import reorganize_features_final
 
 # =======================
 # Configuración de página
@@ -43,7 +59,7 @@ st.sidebar.markdown("### Run")
 # run_id = st.sidebar.selectbox("Run ID", ["actual"])  # placeholder
 
 # =======================
-# Carga de artefactos
+# Carga de artefactos de entrenamiento
 # =======================
 metrics_path: Path = REPORTS_DIR / "metrics_nn.json"
 hyperparams_path: Path = REPORTS_DIR / "hyperparams_nn.json"
@@ -58,6 +74,23 @@ try:
 except FileNotFoundError as exc:
     st.error(f"No se encontró el archivo de reportes: {exc}")
     st.stop()
+
+# =======================
+# Cargar modelo + artefactos para inferencia (cacheado)
+# =======================
+@st.cache_resource
+def get_nn_bundle():
+    return load_nn_zero_inflated_bundle()
+
+
+model, artefacts = get_nn_bundle()
+embed_cols = artefacts["embed_cols"]
+num_cols = artefacts["num_cols"]
+
+# Dataset base para sugerir opciones por defecto en el formulario
+df = load_clean_dataset()
+X = df.drop(columns=[TARGET_COL])
+X_clean, _, _ = reorganize_features_final(X)
 
 # =======================
 # HEADER estilo dashboard
@@ -76,9 +109,10 @@ app_header(
 st.markdown(
     """
     <p class="ml-muted">
-      Monitor de entrenamiento para el modelo Zero-Inflated Neural Network que predice el procentaje de defectos en la variable
-      Und_2a_percentage. Incluye métricas, curvas de
-      entrenamiento y comparación frente a otras modelos.
+      Monitor de entrenamiento para el modelo Zero-Inflated Neural Network que predice
+      el porcentaje de defectos en la variable <code>Und_2a_percentage</code>.
+      Incluye métricas, curvas de entrenamiento, comparación frente a otros modelos
+      y una herramienta de predicción rápida tipo <em>what-if</em>.
     </p>
     """,
     unsafe_allow_html=True,
@@ -92,10 +126,18 @@ st.markdown("---")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    metric_card("R² (val)", f"{metrics.get('R2', float('nan')):.3f}", "Zero-Inflated NN")
+    metric_card(
+        "R² (val)",
+        f"{metrics.get('R2', float('nan')):.3f}",
+        "Zero-Inflated NN",
+    )
 
 with col2:
-    metric_card("RMSE (val)", f"{metrics.get('RMSE', float('nan')):.4f}", "Und_2a_percentage")
+    metric_card(
+        "RMSE (val)",
+        f"{metrics.get('RMSE', float('nan')):.4f}",
+        "Und_2a_percentage",
+    )
 
 with col3:
     best_epoch = history["val_loss"].idxmin()
@@ -154,3 +196,13 @@ with table_col:
         styled,
         width="stretch",  # reemplazo de use_container_width=True
     )
+# =======================
+# ROW 4: QUICK PREDICTION (componente)
+# =======================
+quick_prediction_card(
+    X_clean=X_clean,
+    embed_cols=embed_cols,
+    num_cols=num_cols,
+    model=model,
+    artefacts=artefacts,
+)
