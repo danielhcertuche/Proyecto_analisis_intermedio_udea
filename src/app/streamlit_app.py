@@ -93,11 +93,23 @@ hyperparams_path: Path = REPORTS_DIR / "hyperparams_nn.json"
 history_path: Path = REPORTS_DIR / "history_nn.csv"
 model_comp_path: Path = REPORTS_DIR / "model_comparison.csv"
 
+
 try:
     metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
     hyperparams = json.loads(hyperparams_path.read_text(encoding="utf-8"))
     history = pd.read_csv(history_path)
-    model_comp = pd.read_csv(model_comp_path)
+
+    try:
+        # intento normal
+        model_comp = pd.read_csv(model_comp_path)
+    except pd.errors.ParserError:
+        # fallback si el CSV viene “sucio”
+        model_comp = pd.read_csv(model_comp_path, on_bad_lines="skip")
+
+        # normalizar nombres si viene de notebooks antiguos
+        if "modelo" in model_comp.columns and "model" not in model_comp.columns:
+            model_comp = model_comp.rename(columns={"modelo": "model"})
+
 except FileNotFoundError as exc:
     st.error(f"No se encontró el archivo de reportes: {exc}")
     st.stop()
