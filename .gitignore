@@ -5,3 +5,7 @@ Data/*
 __pychache__/
 *.__pychache__.ipynb checkpoints
 .vscode/
+
+.ipynb_checkpoints
+src/data/raw/*
+src/data/processed/*
