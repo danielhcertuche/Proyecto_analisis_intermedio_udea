@@ -220,6 +220,43 @@ def inject_theme(dark: bool = True) -> None:
             animation: ml-pulse 1.4s ease-out infinite;
         }}
 
+
+        /* Tarjetas KPI (fondo oscuro) */
+
+        .ml-metric-card {{
+        background: #020617;                /* casi negro, buen contraste */
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(148, 163, 184, 0.35); /* gris azulado */
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        }}
+
+        .ml-metric-header {{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        }}
+
+        .ml-metric-title {{
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #9ca3af;                     /* gris claro, contraste OK */
+        letter-spacing: 0.04em;
+        }}
+
+        .ml-metric-value {{
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #f9fafb;                     /* casi blanco */
+        }}
+
+        .ml-metric-sub {{
+        font-size: 0.75rem;
+        color: #6b7280;                     /* gris medio, aún legible */
+        }}
+
         @keyframes ml-pulse {{
             0%   {{ transform: scale(0.9); opacity: 1; }}
             70%  {{ transform: scale(1.1); opacity: 0.3; }}
