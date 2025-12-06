@@ -8,4 +8,3 @@ __pychache__/
 
 .ipynb_checkpoints
 src/data/raw/*
-src/data/processed/*
