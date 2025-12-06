@@ -1,6 +1,14 @@
 # src/app/components/metric_card.py
 import streamlit as st
 
+VARIANT_ICON = {
+    "primary": "🔵",
+    "success": "✅",
+    "warning": "⚠️",
+    "secondary": "📊",
+}
+
+
 def metric_card(title: str, value: str, subtitle: str = "", delta: str | None = None):
     with st.container():
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
