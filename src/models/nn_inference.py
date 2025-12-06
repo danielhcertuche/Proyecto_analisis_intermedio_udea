@@ -9,7 +9,12 @@ import tensorflow as tf
 
 from src.config.settings import MODELS_DIR
 from src.config.nn_config import NN_MODEL_SUBDIR, NN_PIPELINE_PKL
+import os
+import pathlib
 
+# 🔧 Parche cross-platform: permitir cargar objetos WindowsPath en Linux
+if os.name != "nt" and hasattr(pathlib, "WindowsPath"):
+    pathlib.WindowsPath = pathlib.PosixPath
 
 def load_nn_zero_inflated_bundle() -> Tuple[tf.keras.Model, Dict[str, Any]]:
     """
