@@ -1,0 +1,39 @@
+# src/config/__init__.py
+
+from .settings import (
+    PROJECT_ROOT,
+    DATA_DIR,
+    RAW_DIR,
+    PROCESSED_DIR,
+    MODELS_DIR,
+    REPORTS_DIR,
+    FIGURES_DIR,
+    INFORME_DIR,
+    RANDOM_STATE,
+    RAW_DATASET_NAME,
+    CLEAN_DATASET_NAME,
+    TARGET_COL,
+    TIME_COL,
+    TEMPORAL_SPLIT_QUANT,
+    OUTLIER_LOWER_QUANT,
+    OUTLIER_UPPER_QUANT,
+)
+
+__all__ = [
+    "PROJECT_ROOT",
+    "DATA_DIR",
+    "RAW_DIR",
+    "PROCESSED_DIR",
+    "MODELS_DIR",
+    "REPORTS_DIR",
+    "FIGURES_DIR",
+    "INFORME_DIR",
+    "RANDOM_STATE",
+    "RAW_DATASET_NAME",
+    "CLEAN_DATASET_NAME",
+    "TARGET_COL",
+    "TIME_COL",
+    "TEMPORAL_SPLIT_QUANT",
+    "OUTLIER_LOWER_QUANT",
+    "OUTLIER_UPPER_QUANT",
+]
